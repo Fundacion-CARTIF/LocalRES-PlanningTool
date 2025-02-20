@@ -1,0 +1,24 @@
+[
+    {
+        "Country": "ES",
+        "Goal": "Higher rate of renewable energy",
+        "Result": {
+            "0": {
+                "id": 3,
+                "action_name": "solar_fleet"
+            },
+            "1": {
+                "id": 7,
+                "action_name": "solar_thermal"
+            },
+            "3": {
+                "id": 15,
+                "action_name": "battery_storage"
+            },
+            "4": {
+                "id": 8,
+                "action_name": "biomass_boiler"
+            }
+        }
+    }
+]

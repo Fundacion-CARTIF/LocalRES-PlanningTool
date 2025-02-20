@@ -38,7 +38,7 @@ import pandas as pd
 from pathlib import Path
 import json
 import numpy as np
-from scripts.RESbased_scenario_generator.classes_database import BuildingEnergyAsset, BuildingConsumption
+from scripts.RESbased_scenario_generator.classes_database import BuildingEnergyAsset, BuildingConsumption, CommunityEnergyAsset
 import os
 from scripts.KPI_module.key_performance_indicators import load_energy_system_catalogue, filter_energy_systems_catalogue
 from pvlib.iotools.pvgis import get_pvgis_hourly
@@ -60,7 +60,7 @@ def ungroup_buildings_to_context(grouped_buildings):
     grouped_buildings (dict): A dictionary where keys are 'generation_system_profile_id' and values are lists of buildings.
 
     Returns:
-    dict: The original context with 'building_asset_context' containing the list of buildings.
+    dict: The original context with BUILDING_ASSET_CONTEXT containing the list of buildings.
     """
     
     building_asset_context = []
@@ -92,28 +92,26 @@ def handle_new_system_id(new_system_id):
             #It retrieves the first key of the dictionary using next(iter(new_system_id)).
             # THIS IS DONE BECAUSE the dictionary contains multiple key-value pairs, but the code only uses the first one (for now)
             corrected_new_system_id = int(new_system_id[first_key])
-            print(f"Updated system with value {new_system_id[first_key]} from new_system_id dictionary")
+            # print(f"Updated system with value {new_system_id[first_key]} from new_system_id dictionary")
         else:
-            print("new_system_id is an empty dictionary")
+            # print("new_system_id is an empty dictionary")
             corrected_new_system_id = None
-
-
     elif isinstance(new_system_id, (list, np.ndarray)):
         if len(new_system_id) > 0:  # Check if the list is not empty
             # Update the system id in buildings_generation_system with the first value from new_system_id
             corrected_new_system_id = int(new_system_id[0])
-            print(f"Updated system with value {new_system_id[0]} from new_system_id list")
+            # print(f"Updated system with value {new_system_id[0]} from new_system_id list")
         else:
-            print("new_system_id is an empty list")
+            # print("new_system_id is an empty list")
             corrected_new_system_id = None
 
     elif isinstance(new_system_id, int):
         # Directly use the integer value to update the system id
         corrected_new_system_id = int(new_system_id)
-        print(f"Updated system with value {new_system_id} from new_system_id integer")
+        # print(f"Updated system with value {new_system_id} from new_system_id integer")
 
     else:
-        print("new_system_id is of an unexpected type")
+        # print("new_system_id is of an unexpected type")
         # Handle unexpected type
         type(new_system_id)
         corrected_new_system_id=None
@@ -122,10 +120,10 @@ def handle_new_system_id(new_system_id):
 # Function to group buildings by 'generation_system_profile_id'
 def group_buildings_by_generation_system(bd):
     """
-    Groups buildings by 'generation_system_profile_id' from the 'building_asset_context' list of dictionaries. 
+    Groups buildings by 'generation_system_profile_id' from the BUILDING_ASSET_CONTEXT list of dictionaries.
 
     Parameters:
-    bd (dict): The context object containing the 'building_asset_context' keys which is a group of buildings
+    bd (dict): The context object containing the BUILDING_ASSET_CONTEXT keys which is a group of buildings
 
     Returns:
     dict: A dictionary where keys are 'generation_system_profile_id' and values are lists of buildings.
@@ -139,7 +137,7 @@ def group_buildings_by_generation_system(bd):
     # Check if BUILDING_ASSET_CONTEXT is in bd and is a list
     if BUILDING_ASSET_CONTEXT in bd and isinstance(bd[BUILDING_ASSET_CONTEXT], list):
         for building_dic in bd[BUILDING_ASSET_CONTEXT]:
-            # Check if "generation_system_profile_id" is in the building_dic
+            # Check if 'generation_system_profile_id' is in the building_dic
             if "generation_system_profile_id" in building_dic:
                 gen_id = building_dic["generation_system_profile_id"]
 
@@ -148,9 +146,9 @@ def group_buildings_by_generation_system(bd):
                     grouped_buildings[gen_id] = []
                 grouped_buildings[gen_id].append(building_dic)
             else:
-                print(f"No generation_system_profile_id found in building_dic with id {building_dic.get("id", "unknown")}")
+                print(f"No 'generation_system_profile_id' found in building_dic with id {building_dic.get("id", "unknown")}")
     else:
-        print("building_asset_context is not a valid list in bd")
+        print("BUILDING_ASSET_CONTEXT is not a valid list in bd")
     
     return grouped_buildings
 
@@ -168,8 +166,8 @@ def peak_load_distribution_curve (demand):
     capacity_70 =  0.7 * max_peak
     capacity_90 = 0.9 * max_peak
 
-    print(f"Capacity to meet 80% of demand: {capacity_70:.2f}")
-    print(f"Capacity to meet 90% of demand: {capacity_90:.2f}")
+    # print(f"Capacity to meet 80% of demand: {capacity_70:.2f}")
+    # print(f"Capacity to meet 90% of demand: {capacity_90:.2f}")
     return capacity_70, capacity_90, sorted_demand
 
 def obtain_energy_signature (outdoor_temperatures,demand, mode):
@@ -190,8 +188,8 @@ def obtain_energy_signature (outdoor_temperatures,demand, mode):
     capacity_70 =  0.7 * max_peak
     capacity_90 = 0.9 * max_peak
 
-    print(f"Capacity to meet 80% of demand: {capacity_70:.2f}")
-    print(f"Capacity to meet 90% of demand: {capacity_90:.2f}")
+    # print(f"Capacity to meet 80% of demand: {capacity_70:.2f}")
+    # print(f"Capacity to meet 90% of demand: {capacity_90:.2f}")
     return capacity_70, capacity_90, sorted_demand
 
 def get_generation_system_profile_id(electricity_id, dhw_id, heating_id, cooling_id):
@@ -256,7 +254,7 @@ def get_system_type_for_action(actions_to_generation_systems, action_key,system)
         if new_system_id.size == 0:
             new_system_id = None
     except ValueError as e:
-        print(f"Error retrieving new_system_id: {e}")
+        # print(f"Error retrieving new_system_id: {e}")
         new_system_id = None
     corrected_id=handle_new_system_id(new_system_id)
     return corrected_id
@@ -291,7 +289,7 @@ def get_centroid(group_of_geoms,target_epsg=4326):
 
             # Check if the geometry is valid
             if not geometry.is_valid:
-                print(f"Warning: Geometry for building {building_id} is invalid, attempting to fix...")
+                # print(f"Warning: Geometry for building {building_id} is invalid, attempting to fix...")
                 geometry = geometry.buffer(0)  # Try to fix the geometry by buffering it
 
             # Append the valid geometry to the list
@@ -300,27 +298,57 @@ def get_centroid(group_of_geoms,target_epsg=4326):
             ids_list.append(building_id)
 
         except GEOSException as e:
-            # If there"s an issue loading the geometry, log it and skip
+            # If there's an issue loading the geometry, log it and skip
             print(f"Error loading geometry for building {building_id}: {e}")
 
     # Create the GeoDataFrame
-    gdf = gpd.GeoDataFrame({"id": ids_list, "name": names_list, "geometry": geoms_list})
-    # Assign a default CRS (you might want to choose a different CRS depending on the data source)
-    gdf.set_crs(epsg=target_epsg, inplace=True)
+    gdf = gpd.GeoDataFrame({"id": ids_list, "name": names_list, "geometry": geoms_list}, crs="EPSG:4326")
 
-    # Reproject the GeoDataFrame to the target CRS (e.g., EPSG:4326 for geographic coordinates)
-    gdf = gdf.to_crs(epsg=target_epsg)
-    # Calculate the centroid of each individual geometry
-    gdf["centroid"] = gdf.geometry.centroid
+    # Convert to a projected CRS (use an appropriate UTM zone if possible)
+    projected_crs = 3857  # Web Mercator; replace with a UTM zone for better accuracy
+    gdf_projected = gdf.to_crs(epsg=projected_crs)
 
-    # Calculate the centroid of the entire group of geometries
-    community_centroid = gdf.unary_union.centroid
+    # Compute centroids in the projected CRS
+    gdf_projected["centroid"] = gdf_projected.geometry.centroid
+
+    # Compute the community centroid in projected CRS
+    community_centroid_projected = gdf_projected.unary_union.centroid
+
+    # Reproject centroids back to EPSG:4326
+    gdf["centroid"] = gdf_projected["centroid"].to_crs(epsg=4326)
+    community_centroid = gpd.GeoSeries([community_centroid_projected], crs=projected_crs).to_crs(epsg=4326).iloc[0]
+
 
     # ------------------------------------------------------
     # ASSUMES INPUT AND OUTPUT CRS IS EPSG 4326
     # IF NOT, IT MUST BE MODIFIED
     # ------------------------------------------------------
     return gdf, community_centroid
+def wind_power(wind_speed):
+    import numpy as np
+
+    # Define wind speed and power from the technology (in this case wind turbine e200 https://www.enair.es/en/small-wind-turbines/e200)
+    #18 meters height, nominal power of 20 kW, starts functioning at 1.85 m/s
+    wind_speed_table = [0, 1.85, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,20.01]
+    power_table = [0, 0, 80, 500, 1350, 2800, 4700, 7000, 9600, 12300, 15500, 17800, 18500, 18000,
+                   17500, 17500, 17500, 17500, 17500, 17500, 17500, 0]
+    wind_speed_table_030pro=[0, 1.85, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12,  15, 15.01]
+    power_table_030pro=[0, 0, 0, 10, 100, 300, 1000, 1450, 1850, 2100, 2300, 2500,2500,0]
+    # Scaling power values
+    power_table = [p / 20000 for p in power_table]
+    power_table_030pro = [p / 3000 for p in power_table_030pro]
+    # Interpolating power values for the second dataset to match the wind_speed_table of the first dataset
+    interpolated_power_table_030pro = np.interp(wind_speed_table, wind_speed_table_030pro, power_table_030pro)
+    # Calculating mean values
+    mean_power = [(p1 + p2) / 2 for p1, p2 in zip(power_table, interpolated_power_table_030pro)]
+    # Setting mean power values to 0 for wind speeds above 15 m/s
+    mean_power_adjusted = [0 if wind_speed > 15 else power for wind_speed, power in zip(wind_speed_table, mean_power)]
+
+    # Interpolate power for each wind speed in tmy_data['WS10m']
+    wind_potential_kWh_per_kWp = np.interp(wind_speed, wind_speed_table, mean_power_adjusted).tolist()
+
+
+    return wind_potential_kWh_per_kWp
 
 
 def call_PVGIS(longitude, latitude,tilt_angle):
@@ -337,9 +365,9 @@ def call_PVGIS(longitude, latitude,tilt_angle):
         dict
             A dictionary containing the original GeoJSON, temperatures, and calculated radiations.
             From PVGIS tmy_data is obtained such as:
-                    {"T2m": {"description": "2-m air temperature", "units": "degree Celsius"},
-                    "RH": {"description": "relative humidity", "units": "%"},
-                     "G(h)": {"description': 'Global irradiance on the horizontal plane', 'units': 'W/m2'},
+                    {'T2m': {'description': '2-m air temperature', 'units': 'degree Celsius'},
+                    'RH': {'description': 'relative humidity', 'units': '%'},
+                     'G(h)': {'description': 'Global irradiance on the horizontal plane', 'units': 'W/m2'},
                       'Gb(n)': {'description': 'Beam/direct irradiance on a plane always normal to sun rays', 'units': 'W/m2'},
                       'Gd(h)': {'description': 'Diffuse irradiance on the horizontal plane', 'units': 'W/m2'},
                       'IR(h)': {'description': 'Surface infrared (thermal) irradiance on a horizontal plane', 'units': 'W/m2'},
@@ -375,7 +403,11 @@ def call_PVGIS(longitude, latitude,tilt_angle):
 
         # Ensure 'tmy_data' index is in datetime format
         tmy_data.index = pd.to_datetime(tmy_data.index)
-
+        #get other data
+        T2m = tmy_data['T2m'].tolist()
+        WS10m = tmy_data['WS10m'].tolist()
+        #get wind potential at 10 meters height
+        wind_potential_kWh_per_kWp=wind_power(WS10m)
         # Define the location using 'inputs' data
         latitude = inputs['location']['latitude']
         longitude = inputs['location']['longitude']
@@ -408,43 +440,57 @@ def call_PVGIS(longitude, latitude,tilt_angle):
             )
 
             irradiance_dic[orientation_name] = irradiance['poa_global'].tolist()  # Radiation list
-        return irradiance_dic, pv_profile_in_kWh_kWp, solar_elevation_midday_values
 
-def handle_storage_system(action_key, actions_to_generation_systems,community_node):
-    new_gen_system_id = get_system_type_for_action(actions_to_generation_systems, action_key, system='storage')
-    new_community_energy_asset ={
-                "id_temp": None,
-                "generation_system_id": new_gen_system_id,
-                "pmaxmin_scalar": 0,
-                "availability_ts_id": None,
-                "pmax_scalar":  None,
-                "pmaxmax_scalar": 1000, #1MW
-                "input_node_id": None,
-                "output_node_id": None,
-                "input_node": {
-                    "id_temp": None,
-                    "context_id": None,
-                    "geom": community_node,
-                    "name": "storage_input"
-                },
-                "output_node": {
-                    "id_temp": None,
-                    "context_id": None,
-                    "geom": community_node,
-                    "name": "storage_output"
-                },
-                "availability_ts": {
-                    "id_temp": None,
-                    "value_input1": [100]*8760,
-                    "value_input2": [],
-                    "value_output1": [],
-                    "value_output2": [],
-                    "testcase": "TC_0",
-                    "name": "multi_time_series"
-                }
-    }
-    return new_community_energy_asset
+        irradiance_dic_with_tmy_data=irradiance_dic
+        irradiance_dic_with_tmy_data['Gb(n)']=tmy_data['Gb(n)'].tolist()
+        irradiance_dic_with_tmy_data['G(h)']=tmy_data['G(h)'].tolist()
+        irradiance_dic_with_tmy_data['Gd(h)']=tmy_data['Gd(h)'].tolist()
 
+        return irradiance_dic, pv_profile_in_kWh_kWp, solar_elevation_midday_values, T2m, wind_potential_kWh_per_kWp, irradiance_dic_with_tmy_data
+
+
+
+def handle_storage_system(action_key, actions_to_generation_systems,community_node, energy_systems_catalogue):
+    new_gen_system_id = get_system_type_for_action(actions_to_generation_systems, action_key, system="storage")
+    filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_generation_system_id=new_gen_system_id)
+    new_community_energy_asset=CommunityEnergyAsset(generation_system_id=new_gen_system_id, pmaxmin_scalar=0,
+                                                    pmaxmax_scalar=1000, input_node_geom=community_node,
+                                                    output_node_geom=community_node, name="storage")
+    new_community_energy_asset.add_input1_profile(input1_profile= [100]*8760)
+    new_community_energy_asset.add_generation_systems_info(Generation_system_info=filtered_systems_info)
+    new_community_enegy_asset_dic=new_community_energy_asset.to_dict()
+    #storage assumde of 1 MW and available all year long
+    del new_community_energy_asset
+
+
+    return new_community_enegy_asset_dic
+
+
+def handle_wind_system(action_key, actions_to_generation_systems,community_node, wind_potential_kWh_per_kWp,energy_systems_catalogue):
+    new_gen_system_id = get_system_type_for_action(actions_to_generation_systems, action_key, system="electricity_system_id")
+    filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_generation_system_id=new_gen_system_id)
+    new_community_energy_asset=CommunityEnergyAsset(generation_system_id=new_gen_system_id, pmaxmin_scalar=0,
+                                                    pmaxmax_scalar=20000, input_node_geom=community_node,
+                                                    output_node_geom=community_node, name="wind")
+    new_community_energy_asset.add_input1_profile(input1_profile= wind_potential_kWh_per_kWp)
+    new_community_energy_asset.add_generation_systems_info(Generation_system_info=filtered_systems_info)
+    new_community_enegy_asset_dic=new_community_energy_asset.to_dict()
+    del new_community_energy_asset
+
+    return new_community_enegy_asset_dic
+
+def handle_chp_system(action_key, actions_to_generation_systems,community_node,energy_systems_catalogue):
+    new_gen_system_id = get_system_type_for_action(actions_to_generation_systems, action_key, system="electricity_system_id")
+    filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_generation_system_id=new_gen_system_id)
+    new_community_energy_asset=CommunityEnergyAsset(generation_system_id=new_gen_system_id, pmaxmin_scalar=0,
+                                                    pmaxmax_scalar=20000, input_node_geom=community_node,
+                                                    output_node_geom=community_node, name="chp")
+    new_community_energy_asset.add_input1_profile(input1_profile= [100]*8760)
+    new_community_energy_asset.add_generation_systems_info(Generation_system_info=filtered_systems_info)
+    new_community_enegy_asset_dic=new_community_energy_asset.to_dict()
+    del new_community_energy_asset
+
+    return new_community_enegy_asset_dic
 def handle_electricity_system(updated_generation_system_profile, new_gen_system_id, energy_systems_catalogue, building_id,building_geom,generation_profile):
     new_building_energy_asset_dic={}
     if float(new_gen_system_id) == 83:  # solar fleet
@@ -456,6 +502,8 @@ def handle_electricity_system(updated_generation_system_profile, new_gen_system_
             name=f"pv_building_{building_id}"
         )
         new_building_energy_asset.add_PV_profile(generation_profile)
+        pv_info = filter_energy_systems_catalogue(energy_systems_catalogue, 83)
+        new_building_energy_asset.add_generation_systems_info(Generation_system_info=pv_info)
         new_building_energy_asset_dic = new_building_energy_asset.to_dict()
         del new_building_energy_asset
 
@@ -472,11 +520,12 @@ def handle_electricity_system(updated_generation_system_profile, new_gen_system_
         new_building_energy_asset = BuildingEnergyAsset(
             generation_system_id=new_gen_system_id,
             pmaxmin_scalar=0,
-            pmaxmax_scalar=3, #by the default?
+            pmaxmax_scalar=3, #by default? 3 kW? to be decided!
             building_asset_context_id=building_id,
             name=f"{name}_building_{building_id}"
         )
         new_building_energy_asset.add_PV_profile(generation_profile)
+        new_building_energy_asset.add_generation_systems_info(Generation_system_info=filtered_systems_info)
         new_building_energy_asset_dic = new_building_energy_asset.to_dict()
         del new_building_energy_asset
 
@@ -487,120 +536,87 @@ def handle_electricity_system(updated_generation_system_profile, new_gen_system_
 
     return updated_generation_system_profile , new_building_energy_asset_dic
 
-def handle_dhw_system(updated_generation_system_profile, new_gen_system_id, dhw_demand, energy_systems_catalogue,building_id):
-    new_building_energy_asset_dic={}
+def add_new_building_energy_asset_system(system_id,energy_systems_catalogue,capacity,building_id,system, demand):
+    if energy_systems_catalogue is None:
+        energy_systems_catalogue = load_energy_system_catalogue()
+    filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, system_id)
+    name = filtered_systems_info["name"]
+    new_building_energy_asset = BuildingEnergyAsset(
+        generation_system_id=system_id,
+        pmaxmin_scalar=0,
+        pmaxmax_scalar=capacity,
+        building_asset_context_id=building_id,
+        name=f"{name}_{system}_building_{building_id}"
+    )
+    yield1 = filtered_systems_info["fuel_yield1"]
+    yield2 = filtered_systems_info["fuel_yield2"]
     list_of_hps = [1, 2, 3, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 41, 61, 62, 63, 64, 65, 66,
                    67, 68, 73]
-    if float(new_gen_system_id) in list_of_hps:  # heat pump
-        filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_gen_system_id)
-        capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(dhw_demand)
-        updated_generation_system_profile["dhw_system"] = filtered_systems_info
-        name=filtered_systems_info["name"]
-        new_building_energy_asset = BuildingEnergyAsset(
-            generation_system_id=new_gen_system_id,
-            pmaxmin_scalar=0,
-            pmaxmax_scalar=capacity_70,
-            building_asset_context_id=building_id,
-            name=f"{name}_dhw_building_{building_id}"
-        )
-        yield1 = updated_generation_system_profile["dhw_system"]["fuel_yield1"]
-        yield2 = updated_generation_system_profile["dhw_system"]["fuel_yield2"]
-        new_building_energy_asset.calculate_inputs_and_outputs(demand=dhw_demand,
+    if float(system_id) in list_of_hps:
+        new_building_energy_asset.calculate_inputs_and_outputs(demand=demand,
                                                                fuel_yield1=yield1,
                                                                fuel_yield2=yield2,
                                                                type="heat_pump"
                                                                )
-        new_building_energy_asset_dic = new_building_energy_asset.to_dict()
-
-        difference_capacities = capacity_90 - capacity_70
-        # if difference_capacities > 1:
-        #     #1kW
     else:
-        filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_gen_system_id)
-        capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(dhw_demand)
-        updated_generation_system_profile["dhw_system"] = filtered_systems_info
-        name=updated_generation_system_profile["dhw_system"]["name"]
-        new_building_energy_asset = BuildingEnergyAsset(
-            generation_system_id=new_gen_system_id,
-            pmaxmin_scalar=0,
-            pmaxmax_scalar=capacity_70,
-            building_asset_context_id=building_id,
-            name=f"{name}_dhw_building_{building_id}"
-        )
-        yield1 = updated_generation_system_profile["dhw_system"]["fuel_yield1"]
-        yield2 = updated_generation_system_profile["dhw_system"]["fuel_yield2"]
-        new_building_energy_asset.calculate_inputs_and_outputs(demand=dhw_demand,
-                                                               fuel_yield1=yield1,
-                                                               fuel_yield2=yield2,
-                                                               type=name
-                                                               )
-        new_building_energy_asset_dic = new_building_energy_asset.to_dict()
+        new_building_energy_asset.calculate_inputs_and_outputs(demand=demand,
+                                                                   fuel_yield1=yield1,
+                                                                   fuel_yield2=yield2,
+                                                                   type=None
+                                                                   )
+    new_building_energy_asset.add_generation_systems_info(Generation_system_info=filtered_systems_info)
+    new_building_energy_asset_dic = new_building_energy_asset.to_dict()
+    return new_building_energy_asset_dic, filtered_systems_info
 
-        difference_capacities = capacity_90 - capacity_70
-        # if difference_capacities > 1:
-        #     #1kW
 
+def handle_dhw_system(updated_generation_system_profile, new_gen_system_id,
+                      dhw_demand, energy_systems_catalogue,building_id,
+                      ):
+
+    capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(dhw_demand)
+    new_building_energy_asset_dic,updated_generation_system_profile["dhw_system"]=add_new_building_energy_asset_system (system_id=new_gen_system_id,
+                                                                        energy_systems_catalogue=energy_systems_catalogue,
+                                                                        capacity=capacity_70,
+                                                                        building_id=building_id,
+                                                                        system="dhw",
+                                                                        demand=dhw_demand)
+    # difference_capacities = capacity_90 - capacity_70
+    # # if difference_capacities > 1:
+    # #     #1kW
     return updated_generation_system_profile, new_building_energy_asset_dic
 
 def handle_cooling_system(updated_generation_system_profile, new_gen_system_id, cooling_demand, energy_systems_catalogue,building_id):
-    new_building_energy_asset_dic = {}
+
+    capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(cooling_demand)
+    new_building_energy_asset_dic,updated_generation_system_profile["cooling_system"]=add_new_building_energy_asset_system (system_id=new_gen_system_id,
+                                                                        energy_systems_catalogue=energy_systems_catalogue,
+                                                                        capacity=capacity_90,
+                                                                        building_id=building_id,
+                                                                        system="cooling",
+                                                                        demand=cooling_demand)
     return updated_generation_system_profile, new_building_energy_asset_dic
 
-def handle_heating_system(updated_generation_system_profile, new_gen_system_id,  heating_demand, energy_systems_catalogue,building_id):
-    new_building_energy_asset_dic={}
-    list_of_hps = [1, 2, 3, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 41, 61, 62, 63, 64, 65, 66,
-                   67, 68, 73]
-    if float(new_gen_system_id) in list_of_hps:  # heat pump
-        filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_gen_system_id)
-        capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(heating_demand)
-        updated_generation_system_profile["heating_system"] = filtered_systems_info
-        name=updated_generation_system_profile["heating_system"]["name"]
-        new_building_energy_asset = BuildingEnergyAsset(
-            generation_system_id=new_gen_system_id,
-            pmaxmin_scalar=0,
-            pmaxmax_scalar=capacity_70,
-            building_asset_context_id=building_id,
-            name=f"{name}_heating_building_{building_id}"
-        )
-        yield1 = updated_generation_system_profile["heating_system"]["fuel_yield1"]
-        yield2 = updated_generation_system_profile["heating_system"]["fuel_yield2"]
-        new_building_energy_asset.calculate_inputs_and_outputs(demand=heating_demand,
-                                                               fuel_yield1=yield1,
-                                                               fuel_yield2=yield2,
-                                                               type="heat_pump"
-                                                               )
-        new_building_energy_asset_dic = new_building_energy_asset.to_dict()
-        del new_building_energy_asset
-    else:
-        filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue, new_gen_system_id)
-        capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(heating_demand)
-        updated_generation_system_profile["heating_system"] = filtered_systems_info
-        name = updated_generation_system_profile["heating_system"]["name"]
-        new_building_energy_asset = BuildingEnergyAsset(
-            generation_system_id=new_gen_system_id,
-            pmaxmin_scalar=0,
-            pmaxmax_scalar=capacity_70,
-            building_asset_context_id=building_id,
-            name=f"{name}_heating_building_{building_id}"
-        )
-        yield1 = updated_generation_system_profile["heating_system"]["fuel_yield1"]
-        yield2 = updated_generation_system_profile["heating_system"]["fuel_yield2"]
-        new_building_energy_asset.calculate_inputs_and_outputs(demand=heating_demand,
-                                                               fuel_yield1=yield1,
-                                                               fuel_yield2=yield2,
-                                                               type=name
-                                                               )
-        new_building_energy_asset_dic = new_building_energy_asset.to_dict()
-        del new_building_energy_asset
+def handle_cooling_system(updated_generation_system_profile, new_gen_system_id,
+                          heating_demand, energy_systems_catalogue,building_id
+                          ):
+
+    capacity_70, capacity_90, sorted_demand = peak_load_distribution_curve(heating_demand)
+    new_building_energy_asset_dic,updated_generation_system_profile["heating_system"]=add_new_building_energy_asset_system (system_id=new_gen_system_id,
+                                                                        energy_systems_catalogue=energy_systems_catalogue,
+                                                                        capacity=capacity_70,
+                                                                        building_id=building_id,
+                                                                        system="heating",
+                                                                        demand=heating_demand)
     return updated_generation_system_profile, new_building_energy_asset_dic
 
 # Function to update building system based on recommended action key
 def update_building_system(goal, building_id,building_geom, demandprofile,pvprofile, buildings_generation_system,
-                           building_energy_asset, actions_to_generation_systems, action_key,solar_elevation):
+                           building_energy_asset, actions_to_generation_systems, action_key,solar_elevation,
+                           ):
     """
-    Updates the building"s generation system profile and energy assets based on the recommended action key.
+    Updates the building's generation system profile and energy assets based on the recommended action key.
 
-    This function takes in various inputs related to the building"s energy systems, demand profiles, and recommended actions
+    This function takes in various inputs related to the building's energy systems, demand profiles, and recommended actions
     to update the building's energy generation systems (e.g., electricity, heating, cooling, and DHW) according to
     the `action_key`. It processes each system, applies updates from the energy systems catalogue, and returns the
     updated generation system profile and a list of energy assets.
@@ -661,7 +677,7 @@ def update_building_system(goal, building_id,building_geom, demandprofile,pvprof
       are applied.
 
     """
-    heating_demand=demandprofile["heating_demand"].copy()
+    heating_demand=demandprofile['heating_demand'].copy()
     cooling_demand = demandprofile["cooling_demand"].copy()
     dhw_demand = demandprofile["dhw_demand"].copy()
 
@@ -674,24 +690,21 @@ def update_building_system(goal, building_id,building_geom, demandprofile,pvprof
     # updated_generation_system_profile will be updated with the new keys, dictionary and info from generation_system_profile
     # Initialize an empty list for building_energy_assets
 
-    if building_energy_asset is not None:
-        building_energy_assets=building_energy_asset
-    else:
-        building_energy_assets=[]
+    updated_building_energy_assets=[]
     #get energy systems catalogue
     energy_systems_catalogue=load_energy_system_catalogue()
     if action_key in keys_buildings_level_recommendations:
         for system in buildings_generation_system:
-            # Check if the key ends with "_id" and the value is not None
+            # Check if the key ends with '_id' and the value is not None
             if system.endswith("_id") and buildings_generation_system[system] is not None:
                 new_gen_system_id=get_system_type_for_action(actions_to_generation_systems, action_key, system)
                 new_system = False
                 if new_gen_system_id is not None and buildings_generation_system[system] != new_gen_system_id:
                     # Print the current system id value
                     new_system = True
-                    print(f"For {system}, the old system id is:{buildings_generation_system[system]}")
+                    # print(f"For {system}, the old system id is:{buildings_generation_system[system]}")
                     updated_generation_system_profile[system] = new_gen_system_id
-                    print(f"For {system}, the new system id is:{updated_generation_system_profile[system]}")
+                    # print(f"For {system}, the new system id is:{updated_generation_system_profile[system]}")
                     if system.startswith("electricity"):
                         updated_generation_system_profile, new_building_energy_asset_dic=handle_electricity_system(updated_generation_system_profile,
                                                                                                                    new_gen_system_id,
@@ -701,50 +714,61 @@ def update_building_system(goal, building_id,building_geom, demandprofile,pvprof
                                                                                                                    pvprofile)
                         updated_generation_system_profile["electricity_system_id"] = 79
                         if new_building_energy_asset_dic:
-                            building_energy_assets.append(new_building_energy_asset_dic)
+                            updated_building_energy_assets.append(new_building_energy_asset_dic)
                     elif system.startswith("dhw"):
-                        updated_generation_system_profile, new_building_energy_asset_dic=handle_dhw_system(updated_generation_system_profile,
+                        updated_generation_system_profile, new_building_energy_asset=handle_dhw_system(updated_generation_system_profile,
                                                                                                            new_gen_system_id,  dhw_demand,
                                                                                                            energy_systems_catalogue,
                                                                                                            building_id)
-                        if new_building_energy_asset_dic:
-                            building_energy_assets.append(new_building_energy_asset_dic)
+                        if new_building_energy_asset:
+                            updated_building_energy_assets.append(new_building_energy_asset)
                     elif system.startswith("cooling"):
                         updated_generation_system_profile, new_building_energy_asset_dic=handle_cooling_system(updated_generation_system_profile
                                                                                                                ,new_gen_system_id,  cooling_demand,
                                                                                                                energy_systems_catalogue,
                                                                                                                building_id)
                         if new_building_energy_asset_dic:
-                            building_energy_assets.append(new_building_energy_asset_dic)
+                            updated_building_energy_assets.append(new_building_energy_asset_dic)
                     elif system.startswith("heating"):
                         updated_generation_system_profile, new_building_energy_asset_dic=handle_heating_system(updated_generation_system_profile,
                                                                                                                new_gen_system_id, heating_demand,
                                                                                                                energy_systems_catalogue,
                                                                                                                building_id)
                         if new_building_energy_asset_dic:
-                            building_energy_assets.append(new_building_energy_asset_dic)
+                            updated_building_energy_assets.append(new_building_energy_asset_dic)
                 else:
                     # Print a message if the system value is None (not necessary due to previous checks)
                     print(f"{system} is None, no change applied.")
 
     else:
         # Print a message if the action key does not apply
-        print(f"Action key {action_key} is not in the dictionary and does not apply")
+        # print(f"Action key {action_key} is not in the dictionary and does not apply")
         new_system=False
     # Create a copy of the updated buildings_generation_system dictionary
     # Return the updated dictionary
-    return updated_generation_system_profile, building_energy_assets, new_system
 
 
-def update_community_energy_assets (community_node,action_key,actions_to_generation_systems):
+    return updated_generation_system_profile, updated_building_energy_assets, new_system
+
+
+def update_community_energy_assets (community_node,action_key,actions_to_generation_systems,wind_potential_kWh_per_kWp):
     # we will have systems that are applied at community level, to be done[3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 18, 20]
     keys_community_level_recommendations = [15]
-    if action_key in keys_community_level_recommendations:
+    energy_systems_catalogue=load_energy_system_catalogue()
+    if action_key ==15:
         # Print a message if the action key applies to community level
-        community_energy_asset=handle_storage_system(action_key, actions_to_generation_systems,community_node)
+        community_energy_asset=handle_storage_system(action_key, actions_to_generation_systems,community_node,energy_systems_catalogue)
+    elif action_key ==4:
+        #handle wind turbine asset
+        community_energy_asset=handle_wind_system(action_key, actions_to_generation_systems,community_node, wind_potential_kWh_per_kWp,energy_systems_catalogue)
+    elif action_key==14:
+        community_energy_asset =handle_chp_system(action_key, actions_to_generation_systems, community_node, energy_systems_catalogue)
+
     return community_energy_asset
 
 def create_grid_community_asset(community_centroid):
+    energy_systems_catalogue=load_energy_system_catalogue()
+    filtered_systems_info = filter_energy_systems_catalogue(energy_systems_catalogue=energy_systems_catalogue, new_generation_system_id=79)
     grid={
             "id": None,
             "generation_system_id": 79,
@@ -760,7 +784,8 @@ def create_grid_community_asset(community_centroid):
                 "geom": community_centroid,
                 "name": "GRID"
             },
-            "availability_ts": None
+            "availability_ts": None,
+            "generation_system": filtered_systems_info,
     }
     return grid
 

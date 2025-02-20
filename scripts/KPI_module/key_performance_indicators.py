@@ -1,3 +1,38 @@
+# -*- coding: utf-8 -*-
+"""
+Dependencies:
+    python 3.11
+    pillow                    10.2.0
+    pandas                    2.2.0
+    spyder                    5.5.0
+    geopandas                 0.14.2
+Created on October 2023
+
+@author: Andrea Gabaldon Moreno
+License: GNU GPLv3
+The GNU General Public License is a free, copyleft license for software and other kinds of works.
+https://www.gnu.org/licenses/gpl-3.0.html
+You may copy, distribute and modify the software as long as you track changes/dates in source files.
+ Any modifications to or software including (via compiler) GPL-licensed code must also be made
+ available under the GPL along with build & install instructions.
+ This means, you must:
+     - Include original
+     - State Changes
+     - Disclose source
+     - Include the same license -- to make sure it remains free software for all its users.
+     - Include copyright
+     - Include install instructions
+
+You cannot: sublicense or hold liable.
+
+Copyright @CARTIF 2025
+
+***********************************************************************************************
+
+This part of the code is changes the
+
+***********************************************************************************************
+"""
 import os
 import json
 from scripts.RESbased_scenario_generator.classes_database import FinalEnergy, BuildingKPIs
@@ -133,6 +168,7 @@ def check_system_type_to_get_consumption(system_name,consumption_profile):
 
 def instantiate_final_energy_with_json():
     parent_directory = os.path.dirname(os.path.abspath(__file__))
+    print(parent_directory)
     json_file_path = os.path.join(parent_directory,
                                   "catalogues", "energy_carrier.json")
     with open(json_file_path, "r") as file:
@@ -332,8 +368,11 @@ def calculate_building_indicators(consumption_profile, generation_system_profile
             if ENERGY_CARRIER_INPUT1 in system and system[ENERGY_CARRIER_INPUT1].get("final") == True:
                 # Get the ID and KPI data
                 energy_carrier_id = system[ENERGY_CARRIER_INPUT1]["id"]
-                kpi_data = system[ENERGY_CARRIER_INPUT1][NATIONAL_ENERGY_CARRIER_DATA][
-                    0]
+                print(system)
+                if isinstance(system[ENERGY_CARRIER_INPUT1][NATIONAL_ENERGY_CARRIER_DATA], list):
+                    kpi_data = system[ENERGY_CARRIER_INPUT1][NATIONAL_ENERGY_CARRIER_DATA][0] #aquí se debería filtrar por country_id...
+                elif isinstance(system[ENERGY_CARRIER_INPUT1][NATIONAL_ENERGY_CARRIER_DATA], dict):
+                    kpi_data = system[ENERGY_CARRIER_INPUT1][NATIONAL_ENERGY_CARRIER_DATA]
                 if kpi_data is not None:
                     KPIs[energy_carrier_id] = BuildingKPIs(total_final_energy[energy_carrier_id], kpi_data)
 

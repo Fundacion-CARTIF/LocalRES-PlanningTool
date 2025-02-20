@@ -21,6 +21,7 @@ class BuildingEnergyAsset:
         self.input2 = []  # Represents air or other input2
         self.output1 = []  # Represents heating demand or other output1
         self.output2 = []  # Empty by default
+        self.generation_system_info={}
 
 
     def add_PV_profile(self,pvprofile):
@@ -37,20 +38,37 @@ class BuildingEnergyAsset:
                 input2_value = (fuel_yield1 - 1) * input1_value
             else:
                 input1_value = d / fuel_yield1
-                input2_value=[]
+                input2_value=0
                 if fuel_yield2 is not None:
                     output2_value = d*fuel_yield2
-                    self.output2 = output2_value
+                    self.output2.append(output2_value)  # Store multiple values in output2
 
             self.input1.append(input1_value)
             self.input2.append(input2_value)
 
         # Store demand in output1 or output2 based on the context
         self.output1 = demand  # This could represent heating demand or another output
+    def add_generation_systems_info(self,Generation_system_info):
+        self.generation_system_info = Generation_system_info
 
 
     def to_dict(self):
         """Convert the object to a dictionary matching the required JSON structure."""
+        #when passing the dic, the inptus and ouputs are normalized
+        if self.generation_system_id == 83:
+            value_input1 = self.input1
+            value_input2 = self.input2
+            value_output1 = self.output1
+            value_output2 = self.output2
+        else:
+            normalize_by_pmaxmax = self.pmaxmax_scalar if self.pmaxmax_scalar != 0 else 1
+            value_input1 = [x / normalize_by_pmaxmax for x in self.input1] if isinstance(self.input1, list) else []
+            value_input2 = [x / normalize_by_pmaxmax for x in self.input2] if isinstance(self.input2, list) else []
+            value_output1 = [x / normalize_by_pmaxmax for x in self.output1] if isinstance(self.output1,
+                                                                                           list) else []
+            value_output2 = [x / normalize_by_pmaxmax for x in self.output2] if isinstance(self.output2,
+                                                                                           list) else []
+
         return {
                 "id_temp": None,
                 "generation_system_id": self.generation_system_id,
@@ -62,13 +80,79 @@ class BuildingEnergyAsset:
                 "availability_ts": {
                     "temp_id": None,
                     "name": self.name,
+                    "value_input1":value_input1,
+                    "value_input2":value_input2,
+                    "value_output1":value_output1,
+                    "value_output2":value_output2,
+                    "testcase": "TC_0"
+                },
+                "generation_system": self.generation_system_info
+
+            }
+
+
+class CommunityEnergyAsset:
+    def __init__(self, generation_system_id, pmaxmin_scalar, pmaxmax_scalar, input_node_geom, output_node_geom, name):
+        self.generation_system_id = generation_system_id
+        self.pmaxmin_scalar = pmaxmin_scalar
+        self.pmaxmax_scalar = pmaxmax_scalar
+        self.input_node_geom = input_node_geom
+        self.output_node_geom= output_node_geom
+        self.name = name
+
+        # Initialize time series data placeholders for input1, input2, output1, and output2
+        self.input1 = []  # Represents electricity or other input1
+        self.input2 = []  # Represents air or other input2
+        self.output1 = []  # Represents heating demand or other output1
+        self.output2 = []  # Empty by default
+        self.generation_system_info = {}
+        self.pmax_scalar=None
+    def add_input1_profile(self, input1_profile):
+        self.input1 = input1_profile
+
+    def add_generation_systems_info(self, Generation_system_info):
+        self.generation_system_info = Generation_system_info
+
+    def add_inputs_ARTELYS(self, inputs_ARTELYS):
+        self.pmax_scalar = inputs_ARTELYS.get("pmax_scalar", {})
+        self.input1 = inputs_ARTELYS.get("availability_ts", {}).get("value_input1", [])
+        self.input2 = inputs_ARTELYS.get("availability_ts", {}).get("value_input2", [])
+        self.output1 = inputs_ARTELYS.get("availability_ts", {}).get("value_output1", [])
+        self.output2 = inputs_ARTELYS.get("availability_ts", {}).get("value_output2", [])
+    def to_dict(self):
+        """Convert the object to a dictionary matching the required JSON structure."""
+        return {
+                "id_temp": None,
+                "generation_system_id":  self.generation_system_id,
+                "pmaxmin_scalar": self.pmaxmin_scalar,
+                "availability_ts_id": None,
+                "pmax_scalar":  self.pmax_scalar,
+                "pmaxmax_scalar": self.pmaxmax_scalar, #1MW
+                "input_node_id": None,
+                "output_node_id": None,
+                "input_node": {
+                    "id_temp": None,
+                    "context_id": None,
+                    "geom": self.input_node_geom,
+                    "name": self.name
+                },
+                "output_node": {
+                    "id_temp": None,
+                    "context_id": None,
+                    "geom": self.output_node_geom,
+                    "name": self.name
+                },
+                "availability_ts": {
+                    "id_temp": None,
                     "value_input1": self.input1,
                     "value_input2": self.input2,
                     "value_output1": self.output1,
                     "value_output2": self.output2,
-                    "testcase": "TC_0"
-                }
-            }
+                    "testcase": "TC_0",
+                    "name": "multi_time_series"
+                },
+                "generation_system": self.generation_system_info
+    }
 
 
 
@@ -211,10 +295,22 @@ class BuildingKPIs:
         self.final_energy = final_energy_instance
         self.energy_carrier_name=final_energy_instance.name
         self.energy_carrier_id = kpi_data['energy_carrier_id']
-        self.pef_tot = kpi_data.get('pef_tot', 0.0)  # Default to 0 if None
-        self.pef_nren = kpi_data.get('pef_nren', 0.0)  # Default to 0 if None
-        self.f_co2_eq_g_kwh = kpi_data.get('f_co2_eq_g_kwh', 0.0)  # Default to 0 if None
-        self.pef_ren = kpi_data.get('pef_ren', 0.0)  # Default to 0 if None
+        if kpi_data.get('pef_tot', 0.0)  == None:
+            self.pef_tot =0
+        else:
+            self.pef_tot = kpi_data.get('pef_tot', 0.0)  # Default to 0 if None
+        if kpi_data.get('pef_nren', 0.0) == None:
+            self.pef_nren =0
+        else:
+            self.pef_nren = kpi_data.get('pef_nren', 0.0)  # Default to 0 if None
+        if kpi_data.get('f_co2_eq_g_kwh', 0.0)== None:
+            self.f_co2_eq_g_kwh =0
+        else:
+            self.f_co2_eq_g_kwh = kpi_data.get('f_co2_eq_g_kwh', 0.0)  # Default to 0 if None
+        if kpi_data.get('pef_ren', 0.0) == None:
+            self.pef_ren =0
+        else:
+            self.pef_ren = kpi_data.get('pef_ren', 0.0)  # Default to 0 if None
 
         if kpi_data.get('non_h_costs_eur_kwh', 0.0) == None:
             self.non_h_costs_eur_kwh = 0
