@@ -99,6 +99,10 @@ Output
     ]
 }
 ```
+
+### Functions 
+The RESbased_scenario_generator.py has several functions:
+
 # RESbased_scenario_generator.py
 
 ## 1. res_based_generator_list_technologies(inputs_users)
@@ -322,65 +326,3 @@ recommendations = country_res_recommendations("AT")
 # Display recommendations
 print(recommendations)
 ```
-
-### Functions 
-The RESbased_scenario_generator.py has several functions:
-```python
-res_based_generator_list_technologies(inputs_users)
-```
-Generates a list of recommended renewable energy technologies based on user goals and country selection, as shown before.
-```python
-match_actions(action_keys, data)
-```
-Matches actions from the RES library with input actions based on a predefined key mapping. To do that,     actions_keys_csv_file_path = os.path.join(directory_path, 'action_keys.csv')
-    action_keys = pd.read_csv(actions_keys_csv_file_path)  are used
-```python
-calculate_action_values(goal_numeric_value, country_properties, json_file_path_country_vs_actions_df)
-```
-Calculates action values using multi-criteria decision analysis (MCDA).
-```python
-goal_vs_country(goal_numeric_value)
-```
-Maps energy goals to country-specific feasibility parameters.
-```python
-get_goal_values(goal_name, json_file_path_goals_vs_actions_df)
-```
-Fetches action values related to user-defined energy goals.
-```python
-top_values(df)
-```
-Ranks actions and selects the top renewable energy solutions based on calculated weights.
-```python
-baseline_pathway_simple(data, front_data, demand_profile, building_consumption_dict)
-```
-Computes baseline energy demand and generation profiles.
-```python
-baseline_pathway_intermediate(data, front_data, geojson_file, demand_profile, building_consumption_dict)
-```
-Processes geospatial building data to assess energy demand.
-```python
-calculate_areas(geojson_file)
-```
-Computes areas and heating demand from geoJSON building footprints.
-```python
-fetch_geojson(geojson_object)
-```
-Fetches demand data from external sources based on a provided geoJSON file.
-```python
-generate_geojson(front_data)
-```
-Converts input data into a structured geoJSON format.
-### Functions from countr_RES_library.py
-
-```python
-country_res_recommendations(country_code)
-```
-Retrieves country-specific RES recommendations based on predefined datasets.
-```python
-country_library(country_code)
-```
-Creates a country object containing relevant RES attributes for decision-making.
-```python
-assign_country_from_json()
-```
-Loads user inputs from a JSON file and assigns country data accordingly.
