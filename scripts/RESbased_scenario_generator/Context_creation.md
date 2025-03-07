@@ -438,7 +438,6 @@ Handles updates to the cooling system in buildings.
 ### **Returns:**
 - `updated_generation_system_profile` (*dict*): Updated system profile with new cooling settings.
 - `new_building_energy_asset_dic` (*dict*): Dictionary containing details of the new cooling energy asset.
-```
 
 ---
 
