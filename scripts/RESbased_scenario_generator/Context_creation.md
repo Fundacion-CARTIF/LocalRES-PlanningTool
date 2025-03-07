@@ -396,25 +396,43 @@ Adds a new energy asset for a building.
 
 ---
 
-## **Handle DHW System**
-### **Function:**
+## Handle DHW System
 ```python
 def handle_dhw_system(updated_generation_system_profile, new_gen_system_id, dhw_demand, energy_systems_catalogue, building_id):
+    """
+    Handles updates to the Domestic Hot Water (DHW) system in buildings.
+
+    Parameters:
+    updated_generation_system_profile (dict): Dictionary containing the updated system profile.
+    new_gen_system_id (int): ID of the new DHW generation system.
+    dhw_demand (list): List of DHW demand values.
+    energy_systems_catalogue (dict): Catalogue of available energy systems.
+    building_id (int): ID of the building.
+
+    Returns:
+    updated_generation_system_profile (dict): Updated system profile with new DHW settings.
+    new_building_energy_asset_dic (dict): Dictionary containing details of the new DHW energy asset.
+    """
 ```
-### **Description:**
-Handles updates to the Domestic Hot Water (DHW) system in buildings.
 
----
-
-## **Handle Cooling System**
-### **Function:**
+## Handle Cooling System
 ```python
 def handle_cooling_system(updated_generation_system_profile, new_gen_system_id, cooling_demand, energy_systems_catalogue, building_id):
-```
-### **Description:**
-Handles updates to the cooling system in buildings.
+    """
+    Handles updates to the cooling system in buildings.
 
----
+    Parameters:
+    updated_generation_system_profile (dict): Dictionary containing the updated system profile.
+    new_gen_system_id (int): ID of the new cooling system.
+    cooling_demand (list): List of cooling demand values.
+    energy_systems_catalogue (dict): Catalogue of available energy systems.
+    building_id (int): ID of the building.
+
+    Returns:
+    updated_generation_system_profile (dict): Updated system profile with new cooling settings.
+    new_building_energy_asset_dic (dict): Dictionary containing details of the new cooling energy asset.
+    """
+```
 
 ## **Create Grid Community Asset**
 ### **Function:**
