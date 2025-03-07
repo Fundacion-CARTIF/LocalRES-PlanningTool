@@ -4,6 +4,16 @@
 
 The **RES-based Scenario Generator** is an open-source Python module designed to generate renewable energy system (RES) scenarios based on user-defined objectives and country-specific recommendations. It integrates multiple data sources and methodologies to suggest technologies suitable for different energy goals.
 
+## Features
+- **Technology Recommendations**: Identifies suitable renewable energy technologies based on user goals and country selection.
+- **Action Mapping**: Matches user-defined actions with predefined action libraries.
+- **Feasibility Calculation**: Uses MCDA (Multi-Criteria Decision Analysis) to determine the feasibility of actions in different countries.
+- **Baseline Pathway Computation**: Generates baseline energy scenarios to compare with alternative solutions.
+- **GeoJSON Data Handling**: Retrieves and processes demand data based on geographic location.
+- **Country-Specific Recommendations**: Provides renewable energy recommendations based on predefined datasets.
+
+---
+
 ## License
 License: GNU GPLv3  
 The GNU General Public License is a free, copyleft license for software and other kinds of works.

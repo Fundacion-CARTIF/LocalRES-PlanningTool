@@ -1,3 +1,66 @@
+# **Context Generation for Energy Systems**
+
+## **Overview**
+This project provides functionalities for handling energy system recommendations, updating building and community energy assets, and processing energy demand and generation profiles. It is developed as part of a renewable energy optimization framework.
+
+## **Features**
+- Grouping and ungrouping buildings based on energy system profiles.
+- Handling updates to building energy systems based on recommended actions.
+- Calculating peak load distribution curves and energy signatures.
+- Interacting with PVGIS for solar and wind energy potential estimation.
+- Managing energy asset data, including heating, cooling, DHW, and electricity systems.
+
+---
+
+## **Installation**
+### **Prerequisites**
+Ensure you have **Python 3.12** installed. Required dependencies include:
+
+- `pandas` (2.2.2)
+- `pillow` (10.3.0)
+- `spyder` (5.5.1)
+- `geopandas` (0.14.3)
+- `pvlib`
+- `numpy`
+- `shapely`
+
+### **Installation using pip**
+You can install the required dependencies using:
+
+```sh
+pip install pandas pillow spyder geopandas pvlib numpy shapely
+```
+
+---
+
+## **License**
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)**. You are free to:
+
+✅ Copy, distribute, and modify the software as long as modifications are tracked.  
+✅ Include the original license and copyright notices.  
+❌ You **cannot** sublicense or hold the authors liable.  
+
+More details: [GNU GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.html)
+
+---
+
+## **Contributing**
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository.
+2. **Create a feature branch** (`git checkout -b feature-branch`).
+3. **Commit changes** (`git commit -m "Add new feature"`).
+4. **Push to the branch** (`git push origin feature-branch`).
+5. **Submit a Pull Request (PR)** for review.
+
+---
+
+## **Contact**
+**Author**: Andrea Gabaldon Moreno  
+📧 **Email**: angamo1994@gmail.com  
+🏢 **Organization**: CARTIF, iciber@cartif.es, manper@cartif.es  
+
+---
 # Classes and Object-Oriented Programming in `classes_database.py`
 
 ## Introduction to Classes in Python
